@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /subscriptions/{subId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      // Clients may only ever create their own doc, and only as a free-tier default.
+      // Plan upgrades are written exclusively by the Cloud Functions Stripe webhook,
+      // which uses the Admin SDK and bypasses these rules entirely.
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.plan == 'free';
+      allow update, delete: if false;
+    }
+  }
+}

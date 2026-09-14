@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Sora", "Inter", system-ui, sans-serif;
+
+  /* Primary brand ramp — violet */
+  --color-brand-50: #f3ecff;
+  --color-brand-100: #e6d9ff;
+  --color-brand-200: #cdb3ff;
+  --color-brand-300: #b088ff;
+  --color-brand-400: #9a5cf5;
+  --color-brand-500: #7c3aed;
+  --color-brand-600: #6b21d8;
+  --color-brand-700: #5b18b8;
+
+  /* Secondary accent — coral/orange */
+  --color-accent-50: #fff1e8;
+  --color-accent-100: #ffe0cc;
+  --color-accent-400: #fb8a4c;
+  --color-accent-500: #ea580c;
+  --color-accent-600: #c2410c;
+
+  /* Validated categorical palette (dataviz-checked: CVD-safe, contrast-safe) */
+  --color-cat-violet: #7c3aed;
+  --color-cat-orange: #ea580c;
+  --color-cat-emerald: #059669;
+  --color-cat-blue: #2563eb;
+  --color-cat-red: #dc2626;
+  --color-cat-amber: #f59e0b;
+  --color-cat-pink: #db2777;
+  --color-cat-other: #94a3b8;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #fffaf5;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Soft blurred gradient blobs used behind hero/auth sections */
+.gradient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-600),
+    var(--color-accent-500) 60%,
+    #db2777
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-gradient {
+  background-image: linear-gradient(100deg, var(--color-brand-600), #db2777 90%);
+}
