@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { usePlan, openBillingPortal } from "../lib/billing";
+import { usePlan } from "../contexts/PlanContext";
+import { openBillingPortal } from "../lib/billing";
 
 export function Navbar() {
   const { user, logOut } = useAuth();
-  const { plan } = usePlan(user);
+  const { plan } = usePlan();
   const navigate = useNavigate();
 
   const handleLogout = async () => {

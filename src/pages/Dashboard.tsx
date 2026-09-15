@@ -14,14 +14,15 @@ import {
   subscribeToSubscriptions,
   updateSubscription,
 } from "../lib/subscriptions";
-import { usePlan, FREE_TIER_SUBSCRIPTION_LIMIT } from "../lib/billing";
+import { FREE_TIER_SUBSCRIPTION_LIMIT } from "../lib/billing";
+import { usePlan } from "../contexts/PlanContext";
 import { useIsStandalone } from "../lib/useIsStandalone";
 import { nextRenewalDate } from "../lib/spend";
 import type { Subscription, SubscriptionInput } from "../types/subscription";
 
 export function Dashboard() {
   const { user } = useAuth();
-  const { plan } = usePlan(user);
+  const { plan } = usePlan();
   const isStandalone = useIsStandalone();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);

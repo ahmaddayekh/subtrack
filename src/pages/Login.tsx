@@ -15,12 +15,14 @@ function friendlyAuthError(err: unknown): string {
 }
 
 export function Login() {
-  const { user, logIn } = useAuth();
+  const { user, logIn, resetPassword } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   // True only while this form's own submit is driving the auth-state change
   // (which has its own explicit navigate() call) — distinguishes that from
   // arriving here already logged in from a persisted session, where auth
@@ -47,6 +49,22 @@ export function Login() {
     }
   };
 
+  const handleResetSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await resetPassword(email);
+      setResetSent(true);
+    } catch (err) {
+      // Don't reveal whether an email exists — same generic message either way.
+      setError("Something went wrong. Please check the email and try again.");
+      void err;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#fffaf5]">
       <div className="gradient-blob -right-24 top-20 h-80 w-80 bg-violet-300" />
@@ -54,43 +72,111 @@ export function Login() {
       <Navbar />
       <div className="relative z-10 mx-auto flex max-w-md flex-col px-4 py-16 sm:px-6">
         <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-lg">
-          <h1 className="font-display text-2xl font-extrabold text-slate-900">Log in</h1>
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
-              />
-            </div>
-            {error && <p className="text-sm font-medium text-red-600">{error}</p>}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="btn-gradient w-full rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-500/25 transition hover:scale-[1.02] disabled:opacity-50"
-            >
-              {submitting ? "Logging in..." : "Log in"}
-            </button>
-          </form>
-          <p className="mt-5 text-sm text-slate-600">
-            Don't have an account?{" "}
-            <Link to="/signup" className="font-bold text-brand-600 hover:text-brand-700">
-              Sign up
-            </Link>
-          </p>
+          {resetMode ? (
+            <>
+              <h1 className="font-display text-2xl font-extrabold text-slate-900">
+                Reset your password
+              </h1>
+              {resetSent ? (
+                <p className="mt-4 text-sm text-slate-600">
+                  If an account exists for <strong>{email}</strong>, a password reset
+                  link is on its way. Check your inbox.
+                </p>
+              ) : (
+                <form onSubmit={handleResetSubmit} className="mt-6 space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                    />
+                  </div>
+                  {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-gradient w-full rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-500/25 transition hover:scale-[1.02] disabled:opacity-50"
+                  >
+                    {submitting ? "Sending..." : "Send reset link"}
+                  </button>
+                </form>
+              )}
+              <p className="mt-5 text-sm text-slate-600">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetMode(false);
+                    setResetSent(false);
+                    setError(null);
+                  }}
+                  className="font-bold text-brand-600 hover:text-brand-700"
+                >
+                  ← Back to log in
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-display text-2xl font-extrabold text-slate-900">Log in</h1>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResetMode(true);
+                        setError(null);
+                      }}
+                      className="text-xs font-bold text-brand-600 hover:text-brand-700"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  />
+                </div>
+                {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="btn-gradient w-full rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-500/25 transition hover:scale-[1.02] disabled:opacity-50"
+                >
+                  {submitting ? "Logging in..." : "Log in"}
+                </button>
+              </form>
+              <p className="mt-5 text-sm text-slate-600">
+                Don't have an account?{" "}
+                <Link to="/signup" className="font-bold text-brand-600 hover:text-brand-700">
+                  Sign up
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

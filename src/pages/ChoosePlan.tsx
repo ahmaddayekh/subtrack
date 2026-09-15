@@ -54,7 +54,7 @@ export function ChoosePlan() {
 
     if (planId === "enterprise") {
       window.location.href =
-        "mailto:sales@subtrack.app?subject=Enterprise%20plan%20inquiry";
+        "mailto:adayekh45@gmail.com?subject=SubTrack%20Enterprise%20plan%20inquiry";
       return;
     }
 
