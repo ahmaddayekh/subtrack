@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PlanProvider } from "./contexts/PlanContext";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
@@ -42,6 +43,7 @@ function App() {
           />
         </Routes>
       </PlanProvider>
+      <Analytics />
     </AuthProvider>
   );
 }

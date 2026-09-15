@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://subtrack-blush-ten.vercel.app/sitemap.xml
