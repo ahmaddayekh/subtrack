@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
@@ -10,10 +10,38 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-export type PushStatus = "idle" | "subscribing" | "subscribed" | "denied" | "unsupported" | "error";
+export type PushStatus = "checking" | "idle" | "subscribing" | "subscribed" | "denied" | "unsupported" | "error";
 
 export function usePushNotifications(user: User | null) {
-  const [status, setStatus] = useState<PushStatus>("idle");
+  const [status, setStatus] = useState<PushStatus>("checking");
+
+  // On mount, find out whether this browser is already subscribed instead of
+  // assuming "idle" every time — otherwise the enable prompt reappears on
+  // every visit even after the user already turned it on.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("unsupported");
+      return;
+    }
+    if (Notification.permission === "denied") {
+      setStatus("denied");
+      return;
+    }
+
+    let cancelled = false;
+    navigator.serviceWorker.ready
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => {
+        if (!cancelled) setStatus(subscription ? "subscribed" : "idle");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("idle");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const enable = useCallback(async () => {
     if (!user) return;

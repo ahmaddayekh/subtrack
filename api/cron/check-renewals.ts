@@ -59,8 +59,8 @@ export default async function handler(req: any, res: any) {
           await webpush.sendNotification(
             pushSubscription,
             JSON.stringify({
-              title: "SubTrack",
-              body: `${sub.name} renews in ${REMINDER_WINDOW_DAYS} days — tap to renew or cancel`,
+              title: `${sub.name} renews in ${REMINDER_WINDOW_DAYS} days`,
+              body: "Tap to renew or cancel it in SubTrack.",
               subId: doc.id,
             }),
           );
