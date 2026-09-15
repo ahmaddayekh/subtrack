@@ -2,6 +2,8 @@
 
 Track every recurring subscription in one place, see what you're really spending each month, and get flagged before renewals sneak up on you.
 
+> **Current deployment status:** the live URL below is a **portfolio demo** — real Firebase project, but Stripe is in **test mode** (no real charges) and the database holds demo/test data, not real customers. See [Going live for real](#going-live-for-real-later) before treating this as a production launch.
+
 ## Stack
 
 - React + Vite + TypeScript
@@ -77,6 +79,16 @@ Local testing of the `/api` functions requires `vercel dev` (proxies both the Vi
 When installed as an app (not in a regular browser tab), a mic button on the dashboard lets users speak a subscription instead of typing it ("I subscribed to Netflix for $15.99 a month starting today"). Speech-to-text runs free in the browser (Web Speech API — works best on Chrome/Android, weaker on iOS Safari); the transcript is sent to `/api/parse-subscription`, which uses Google's Gemini API to extract structured fields for you to review before saving.
 
 To enable it: get a free API key at [aistudio.google.com](https://aistudio.google.com/app/apikey) (no credit card required for the free tier), add it to Vercel as `GEMINI_API_KEY`, and redeploy.
+
+## Going live for real (later)
+
+This deployment is meant to stay a permanent portfolio demo. When actually ready to launch SubTrack as a real product for real users, don't just flip a switch on this same setup — spin up a clean, separate environment so demo/portfolio traffic never touches real customer data:
+
+1. **New Firebase project** — separate Auth users and Firestore data from anything the demo has accumulated (test signups, sample subscriptions).
+2. **Stripe: switch from test mode to live mode** — this needs your real business details and a bank account on file in the Stripe dashboard; create a new live-mode Price for Pro and a new live webhook endpoint. This step is entirely on you — it's a business/identity decision, not something that can be automated.
+3. **New Vercel project** (or a new environment on the same project) pointing at the new Firebase service account + live Stripe keys — keep the demo's env vars untouched so the demo keeps working independently.
+4. **A real domain** — a custom domain reads as a real launch far better than a generated `*.vercel.app` URL. Point it at the new production Vercel project, and leave the demo on its existing `vercel.app` URL.
+5. Re-run through this README's setup + billing steps end to end against the new project before announcing anything.
 
 ## Roadmap (not in this MVP)
 
