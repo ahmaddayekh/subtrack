@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { useAuth } from "../contexts/AuthContext";
+import { buildSupportMailto } from "../lib/support";
 
 const FEATURES = [
   {
@@ -169,6 +170,8 @@ export function Landing() {
           <Link to="/privacy" className="hover:text-slate-700">Privacy Policy</Link>
           <span className="mx-2">·</span>
           <Link to="/terms" className="hover:text-slate-700">Terms of Service</Link>
+          <span className="mx-2">·</span>
+          <a href={buildSupportMailto()} className="hover:text-slate-700">Contact</a>
         </p>
       </footer>
     </div>

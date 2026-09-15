@@ -17,6 +17,7 @@ import {
   updateSubscription,
 } from "../lib/subscriptions";
 import { FREE_TIER_SUBSCRIPTION_LIMIT } from "../lib/billing";
+import { buildSupportMailto } from "../lib/support";
 import { usePlan } from "../contexts/PlanContext";
 import { useIsStandalone } from "../lib/useIsStandalone";
 import { nextRenewalDate } from "../lib/spend";
@@ -154,6 +155,16 @@ export function Dashboard() {
         )}
 
         <DangerZone />
+
+        <p className="mt-8 text-center text-sm text-slate-400">
+          Need help?{" "}
+          <a
+            href={buildSupportMailto(user?.email, plan)}
+            className="font-bold text-slate-500 underline hover:text-slate-700"
+          >
+            Contact support
+          </a>
+        </p>
       </div>
 
       {formOpen && (
