@@ -80,6 +80,16 @@ When installed as an app (not in a regular browser tab), a mic button on the das
 
 To enable it: get a free API key at [aistudio.google.com](https://aistudio.google.com/app/apikey) (no credit card required for the free tier), add it to Vercel as `GEMINI_API_KEY`, and redeploy.
 
+## Renewal reminders (email + push)
+
+A Vercel Cron job (`/api/cron/check-renewals`, runs daily at 09:00 UTC, defined in `vercel.json`) checks for subscriptions renewing in exactly 2 days and, for each one, sends an email and a Web Push notification. Opening the app from the notification deep-links straight to that subscription's **Renew / Cancel** buttons (which show automatically on the dashboard once something is within 2 days of renewing) — Renew rolls the date forward one billing cycle, Cancel deletes it.
+
+Setup:
+- **Push**: no account needed — VAPID keys are self-generated and already set as Vercel env vars (`VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`). Users opt in via the "Enable" prompt on the dashboard, which registers a browser push subscription and saves it via `/api/save-push-subscription`.
+- **Email**: needs a free [Resend](https://resend.com) account — sign up, grab an API key, add it to Vercel as `RESEND_API_KEY`, redeploy. Currently sends from `onboarding@resend.dev` (Resend's shared test address — fine for a demo, but production should verify a real domain, same as the [real-launch checklist](#going-live-for-real-later) below).
+- The cron endpoint itself is locked down with a `CRON_SECRET` env var Vercel sends automatically — direct calls without the correct bearer token get a 401.
+- **Known limitation**: push notifications inside an installed PWA are unreliable on iOS Safari depending on iOS version; untested on a real iPhone as of this writing.
+
 ## Going live for real (later)
 
 This deployment is meant to stay a permanent portfolio demo. When actually ready to launch SubTrack as a real product for real users, don't just flip a switch on this same setup — spin up a clean, separate environment so demo/portfolio traffic never touches real customer data:

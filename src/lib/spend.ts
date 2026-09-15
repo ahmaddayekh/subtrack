@@ -1,5 +1,7 @@
-import { differenceInCalendarDays, parseISO } from "date-fns";
+import { addMonths, addWeeks, addYears, differenceInCalendarDays, formatISO, parseISO } from "date-fns";
 import type { Subscription } from "../types/subscription";
+
+export const RENEWAL_DECISION_WINDOW_DAYS = 2;
 
 export function toMonthlyAmount(sub: Subscription): number {
   switch (sub.billingCycle) {
@@ -28,6 +30,21 @@ export function daysUntilRenewal(sub: Subscription): number {
 export function isRenewingSoon(sub: Subscription, withinDays = 7): boolean {
   const days = daysUntilRenewal(sub);
   return days >= 0 && days <= withinDays;
+}
+
+export function isDueForDecision(sub: Subscription): boolean {
+  return isRenewingSoon(sub, RENEWAL_DECISION_WINDOW_DAYS);
+}
+
+export function nextRenewalDate(sub: Subscription): string {
+  const current = parseISO(sub.renewalDate);
+  const next =
+    sub.billingCycle === "weekly"
+      ? addWeeks(current, 1)
+      : sub.billingCycle === "yearly"
+        ? addYears(current, 1)
+        : addMonths(current, 1);
+  return formatISO(next, { representation: "date" });
 }
 
 export function spendByCategory(

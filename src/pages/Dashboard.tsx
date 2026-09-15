@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Navbar } from "../components/Navbar";
 import { SpendSummary } from "../components/SpendSummary";
@@ -7,6 +7,7 @@ import { CategoryChart } from "../components/CategoryChart";
 import { SubscriptionTable } from "../components/SubscriptionTable";
 import { SubscriptionForm } from "../components/SubscriptionForm";
 import { VoiceAddButton } from "../components/VoiceAddButton";
+import { NotificationPrompt } from "../components/NotificationPrompt";
 import {
   addSubscription,
   deleteSubscription,
@@ -15,6 +16,7 @@ import {
 } from "../lib/subscriptions";
 import { usePlan, FREE_TIER_SUBSCRIPTION_LIMIT } from "../lib/billing";
 import { useIsStandalone } from "../lib/useIsStandalone";
+import { nextRenewalDate } from "../lib/spend";
 import type { Subscription, SubscriptionInput } from "../types/subscription";
 
 export function Dashboard() {
@@ -26,6 +28,9 @@ export function Dashboard() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Subscription | null>(null);
   const [voicePrefill, setVoicePrefill] = useState<Partial<SubscriptionInput> | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightId = searchParams.get("renewId");
+  const highlightedRef = useRef(false);
 
   const atFreeLimit = plan === "free" && subscriptions.length >= FREE_TIER_SUBSCRIPTION_LIMIT;
 
@@ -37,6 +42,24 @@ export function Dashboard() {
     });
     return unsubscribe;
   }, [user]);
+
+  // Deep link from a push notification: scroll to and briefly highlight the
+  // subscription it was about, then drop the query param.
+  useEffect(() => {
+    if (!highlightId || loading || highlightedRef.current) return;
+    const row = document.querySelector(`[data-sub-id="${highlightId}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      highlightedRef.current = true;
+      const timeout = setTimeout(() => {
+        setSearchParams((params) => {
+          params.delete("renewId");
+          return params;
+        });
+      }, 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [highlightId, loading, setSearchParams]);
 
   const handleAdd = () => {
     setEditing(null);
@@ -59,6 +82,15 @@ export function Dashboard() {
     if (confirm("Delete this subscription?")) {
       await deleteSubscription(id);
     }
+  };
+
+  const handleRenew = (sub: Subscription) => {
+    const { id, userId, createdAt, ...input } = sub;
+    void userId;
+    void createdAt;
+    updateSubscription(id, { ...input, renewalDate: nextRenewalDate(sub) }).catch((err) => {
+      console.error("Failed to renew subscription:", err);
+    });
   };
 
   const handleSubmit = (input: SubscriptionInput) => {
@@ -88,6 +120,8 @@ export function Dashboard() {
           </button>
         </div>
 
+        <NotificationPrompt />
+
         {atFreeLimit && (
           <div className="mb-6 flex items-center justify-between rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
             <span>
@@ -109,6 +143,8 @@ export function Dashboard() {
               subscriptions={subscriptions}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onRenew={handleRenew}
+              highlightId={highlightId}
             />
           </div>
         )}
