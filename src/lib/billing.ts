@@ -35,3 +35,15 @@ export async function openBillingPortal(user: User) {
   const { url } = await callBillingApi("/api/create-billing-portal-session", user);
   window.location.href = url;
 }
+
+export async function deleteAccount(user: User) {
+  const idToken = await user.getIdToken();
+  const res = await fetch("/api/delete-account", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? `Failed to delete account (${res.status})`);
+  }
+}

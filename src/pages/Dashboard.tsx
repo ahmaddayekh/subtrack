@@ -8,6 +8,8 @@ import { SubscriptionTable } from "../components/SubscriptionTable";
 import { SubscriptionForm } from "../components/SubscriptionForm";
 import { VoiceAddButton } from "../components/VoiceAddButton";
 import { NotificationPrompt } from "../components/NotificationPrompt";
+import { EmailVerificationBanner } from "../components/EmailVerificationBanner";
+import { DangerZone } from "../components/DangerZone";
 import {
   addSubscription,
   deleteSubscription,
@@ -121,6 +123,7 @@ export function Dashboard() {
           </button>
         </div>
 
+        <EmailVerificationBanner />
         <NotificationPrompt />
 
         {atFreeLimit && (
@@ -149,6 +152,8 @@ export function Dashboard() {
             />
           </div>
         )}
+
+        <DangerZone />
       </div>
 
       {formOpen && (
