@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
+import { useAuth } from "../contexts/AuthContext";
 
 const FEATURES = [
   {
@@ -32,6 +33,8 @@ const PLAN_TEASERS = [
 ];
 
 export function Landing() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#fffaf5]">
       <Navbar />
@@ -57,18 +60,29 @@ export function Landing() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/signup"
-              className="btn-gradient rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:scale-105 hover:shadow-xl"
-            >
-              Start tracking for free →
-            </Link>
-            <Link
-              to="/login"
-              className="rounded-full border-2 border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-            >
-              Log in
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="btn-gradient rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:scale-105 hover:shadow-xl"
+              >
+                Go to your dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/signup"
+                  className="btn-gradient rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:scale-105 hover:shadow-xl"
+                >
+                  Start tracking for free →
+                </Link>
+                <Link
+                  to="/login"
+                  className="rounded-full border-2 border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                  Log in
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -136,10 +150,10 @@ export function Landing() {
           </div>
 
           <Link
-            to="/signup"
+            to={user ? "/dashboard" : "/signup"}
             className="btn-gradient mt-10 inline-block rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition hover:scale-105 hover:shadow-xl"
           >
-            Get started free →
+            {user ? "Go to your dashboard →" : "Get started free →"}
           </Link>
         </div>
       </section>
