@@ -98,6 +98,12 @@ export function Signup() {
               Log in
             </Link>
           </p>
+          <p className="mt-4 text-xs text-slate-400">
+            By signing up, you agree to our{" "}
+            <Link to="/terms" className="underline hover:text-slate-600">Terms of Service</Link>
+            {" "}and{" "}
+            <Link to="/privacy" className="underline hover:text-slate-600">Privacy Policy</Link>.
+          </p>
         </div>
       </div>
     </div>

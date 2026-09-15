@@ -159,10 +159,17 @@ export function Landing() {
       </section>
 
       <footer className="border-t border-slate-100 px-4 py-8 text-center text-sm text-slate-500 sm:px-6">
-        <span className="font-display font-bold text-slate-700">
-          Sub<span className="text-brand-600">Track</span>
-        </span>
-        {" "}— never lose money to a forgotten subscription.
+        <p>
+          <span className="font-display font-bold text-slate-700">
+            Sub<span className="text-brand-600">Track</span>
+          </span>
+          {" "}— never lose money to a forgotten subscription.
+        </p>
+        <p className="mt-3">
+          <Link to="/privacy" className="hover:text-slate-700">Privacy Policy</Link>
+          <span className="mx-2">·</span>
+          <Link to="/terms" className="hover:text-slate-700">Terms of Service</Link>
+        </p>
       </footer>
     </div>
   );
